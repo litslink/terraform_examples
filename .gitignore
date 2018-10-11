@@ -1,0 +1,5 @@
+qa/.terraform
+qa/variables.tf
+qa/terraform.tfstate
+.idea
+*.iml
