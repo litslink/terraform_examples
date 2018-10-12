@@ -11,7 +11,7 @@ This repository contains Terraform configuration for *QA* (`qa` directory) envir
 
 - Create an AWS IAM user with administrative access to: `ECS`, `ECR`, `RDS`, `EC2`, `ACM`, `Route53` and `S3`.
 
-- Edit the template "sample_variables.template" files and fill it with variables relevant to the environment you're preparing :
+- Edit the template "sample_variables.template" files and fill it with variables relevant to the environment you're preparing:
 
 
 ```bash
