@@ -1,5 +1,8 @@
-qa/.terraform
-qa/variables.tf
-qa/terraform.tfstate
+ECS/EC2/.terraform
+ECS/EC2/variables.tf
+ECS/EC2/terraform.tfstate
+ECS/FARGATE/.terraform
+ECS/FARGATE/variables.tf
+ECS/FARGATE/terraform.tfstate
 .idea
 *.iml
