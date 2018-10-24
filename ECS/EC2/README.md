@@ -62,12 +62,12 @@ These components are for a specific environment. There should be a corresponding
 
 | Name | Description | Optional |
 |------|-------------|:---:|
-| app.tf | ECS task definition, ECS service, ECR, ELB, Listener, SecurityGroup, Route53, ACM  | - |
-| cluster.tf | ECS cluster, EC2 configuration, CloudWatch, AutoScaling group, SecurityGroup | - |
-| iam.tf | IAM role and policy | - |
-| main.tf | AWS provider | - |
-| sample_variables.template | Template variable file  | - |
-| vpc.tf | VPC, Subnet, Internet Gateway, Route Table, Security Group  | - ||
+| [app.tf](EC2/app.tf) | ECS task definition, ECS service, ECR, ELB, Listener, SecurityGroup, Route53, ACM  | - |
+| [cluster.tf](EC2/cluster.tf) | ECS cluster, EC2 configuration, CloudWatch, AutoScaling group, SecurityGroup | - |
+| [iam.tf](EC2/iam.tf) | IAM role and policy | - |
+| [main.tf](EC2/main.tf) | AWS provider | - |
+| [sample_variables.template](EC2/sample_variables.template) | Template variable file  | - |
+| [vpc.tf](EC2/vpc.tf) | VPC, Subnet, Internet Gateway, Route Table, Security Group  | - ||
 
 ## Variables
 
@@ -79,10 +79,10 @@ These components are for a specific environment. There should be a corresponding
 | app_instance_port | The port the load balancer will listen on | 8080 | no |
 | aws_access_key | Like a user name and password, you must use both the access key ID and secret access key together to authenticate your requests. | - | yes |
 | aws_cloudwatch_log_group | Default awslogs group name. You can use the name of the project or application | app | yes |
-| aws_ec2_key_name ||||
+| aws_ec2_key_name | To log in to your instance, you must create a key pair, specify the name of the key pair when you launch the instance, and provide the private key when you connect to the instance | ec2_instance_ecs | yes |
 | aws_region | The AWS region to use for the dev environment's infrastructure Currently, Fargate is only available in us-east-1. | us-east-1 | no |
 | aws_secret_key | Like a user name and password, you must use both the access key ID and secret access key together to authenticate your requests. | - | yes |
-| domain_name | Default domain name | - | yes |
+| domain_name | That's root domain zone in route53 | - | yes |
 | ecs_cluster_name | The cluster's name | cluster | no |
 | image_id_default | Default ami image Amazone EC2 Linux. The current AMI IDs by region are listed here => (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html) | ami-0b9a214f40c38d5eb | no |
 | instance_type | An Amazon ECS launch type determines the type of infrastructure on which your tasks and services are hosted. | t2.micro | no |

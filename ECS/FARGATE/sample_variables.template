@@ -27,18 +27,6 @@ variable "aws_secret_key" {
   description = "Secret key for AWS"
 }
 
-## These variables are needed if you use AWS CLI Profile##
-
-//variable "shared_credentials_file" {
-//  default = "/root/.aws/credentials"
-//  description = "You must use the available away for a directory with credentials file AWS CLI. Use only if you AWS CLI installed not in the home directory of the user running the Terraform"
-//}
-//
-//variable "aws_credentials_profile" {
-//  default = "default"
-//  description = "Default aws profile name. You must use the available profile name"
-//}
-
 //******************************* CloudWatch Logs *******************************//
 
 variable "aws_cloudwatch_log_group" {

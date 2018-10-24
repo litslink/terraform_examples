@@ -68,15 +68,15 @@ These components are for a specific environment. There should be a corresponding
 
 | Name | Description | Optional |
 |------|-------------|:---:|
-| alb.tf | ALB, Target Group, Listener, SecurityGroup, output | - |
-| app.tf | ECS task definition, ECR, Route53, ACM  | - |
-| autoscaling.tf | Performance-based auto scaling | Yes |
-| bucket.tf | S3 bucket for access logs ALB, Policy  | - |
-| cluster.tf | ECS cluster, ECS service,   | - |
-| iam.tf | IAM role and policy | - |
-| main.tf | AWS provider | - |
-| sample_variables.template | Template variable file  | - |
-| vpc.tf | VPC, Subnet, Internet Gateway, Route Table, Security Group  | - ||
+| [alb.tf](FARGATE/alb.tf) | ALB, Target Group, Listener, SecurityGroup, output | - |
+| [app.tf](FARGATE/app.tf) | ECS task definition, ECR, Route53, ACM  | - |
+| [autoscaling.tf](FARGATE/autoscaling.tf) | Performance-based auto scaling | Yes |
+| [bucket.tf](FARGATE/bucket.tf) | S3 bucket for access logs ALB, Policy  | - |
+| [cluster.tf](FARGATE/cluster.tf) | ECS cluster, ECS service,   | - |
+| [iam.tf](FARGATE/iam.tf) | IAM role and policy | - |
+| [main.tf](FARGATE/main.tf) | AWS provider | - |
+| [sample_variables.template](FARGATE/sample_variables.template) | Template variable file  | - |
+| [vpc.tf](FARGATE/vpc.tf) | VPC, Subnet, Internet Gateway, Route Table, Security Group  | - ||
 
 ## Variables
 
@@ -93,7 +93,7 @@ These components are for a specific environment. There should be a corresponding
 | aws_region | The AWS region to use for the dev environment's infrastructure Currently, Fargate is only available in us-east-1. | us-east-1 | no |
 | aws_secret_key | Like a user name and password, you must use both the access key ID and secret access key together to authenticate your requests. | - | yes |
 | dereg_delay | The amount time for Elastic Load Balancing to wait before changing the state of a deregistering target from draining to unused | 30 | no |
-| domain_name | Default domain name | - | yes |
+| domain_name | That's root domain zone in route53 | - | yes |
 | ecs_as_cpu_high_threshold_per| If the average CPU utilization over a minute rises to this threshold, the number of containers will be increased (but not above ecs_autoscale_max_instances). | 80 | no |
 | ecs_as_cpu_low_threshold_per | If the average CPU utilization over a minute drops to this threshold, the number of containers will be reduced (but not below ecs_autoscale_min_instances). | 20 | no |
 | ecs_autoscale_max | The maximum number of containers that should be running. Must be no more than ecs_service_count | 5 | no |
