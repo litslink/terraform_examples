@@ -68,15 +68,15 @@ These components are for a specific environment. There should be a corresponding
 
 | Name | Description | Optional |
 |------|-------------|:---:|
-| [alb.tf](FARGATE/alb.tf) | ALB, Target Group, Listener, SecurityGroup, output | - |
-| [app.tf](FARGATE/app.tf) | ECS task definition, ECR, Route53, ACM  | - |
-| [autoscaling.tf](FARGATE/autoscaling.tf) | Performance-based auto scaling | Yes |
-| [bucket.tf](FARGATE/bucket.tf) | S3 bucket for access logs ALB, Policy  | - |
-| [cluster.tf](FARGATE/cluster.tf) | ECS cluster, ECS service,   | - |
-| [iam.tf](FARGATE/iam.tf) | IAM role and policy | - |
-| [main.tf](FARGATE/main.tf) | AWS provider | - |
-| [sample_variables.template](FARGATE/sample_variables.template) | Template variable file  | - |
-| [vpc.tf](FARGATE/vpc.tf) | VPC, Subnet, Internet Gateway, Route Table, Security Group  | - ||
+| [alb.tf](alb.tf) | ALB, Target Group, Listener, SecurityGroup, output | - |
+| [app.tf](app.tf) | ECS task definition, ECR, Route53, ACM  | - |
+| [autoscaling.tf](autoscaling.tf) | Performance-based auto scaling | Yes |
+| [bucket.tf](bucket.tf) | S3 bucket for access logs ALB, Policy  | - |
+| [cluster.tf](cluster.tf) | ECS cluster, ECS service,   | - |
+| [iam.tf](iam.tf) | IAM role and policy | - |
+| [main.tf](main.tf) | AWS provider | - |
+| [sample_variables.template](sample_variables.template) | Template variable file  | - |
+| [vpc.tf](vpc.tf) | VPC, Subnet, Internet Gateway, Route Table, Security Group  | - ||
 
 ## Variables
 

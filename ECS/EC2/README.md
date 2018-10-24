@@ -62,12 +62,12 @@ These components are for a specific environment. There should be a corresponding
 
 | Name | Description | Optional |
 |------|-------------|:---:|
-| [app.tf](EC2/app.tf) | ECS task definition, ECS service, ECR, ELB, Listener, SecurityGroup, Route53, ACM  | - |
-| [cluster.tf](EC2/cluster.tf) | ECS cluster, EC2 configuration, CloudWatch, AutoScaling group, SecurityGroup | - |
-| [iam.tf](EC2/iam.tf) | IAM role and policy | - |
-| [main.tf](EC2/main.tf) | AWS provider | - |
-| [sample_variables.template](EC2/sample_variables.template) | Template variable file  | - |
-| [vpc.tf](EC2/vpc.tf) | VPC, Subnet, Internet Gateway, Route Table, Security Group  | - ||
+| [app.tf](app.tf) | ECS task definition, ECS service, ECR, ELB, Listener, SecurityGroup, Route53, ACM  | - |
+| [cluster.tf](cluster.tf) | ECS cluster, EC2 configuration, CloudWatch, AutoScaling group, SecurityGroup | - |
+| [iam.tf](iam.tf) | IAM role and policy | - |
+| [main.tf](main.tf) | AWS provider | - |
+| [sample_variables.template](sample_variables.template) | Template variable file  | - |
+| [vpc.tf](vpc.tf) | VPC, Subnet, Internet Gateway, Route Table, Security Group  | - ||
 
 ## Variables
 
