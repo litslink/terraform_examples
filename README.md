@@ -1,7 +1,7 @@
 # Terraform ECS with AWS
 
 A set of **Terraform** templates used as an example of deployment ***AWS*** infrastructure with ***ECS***, ***EKS*** and etc.
-
+![terra_ecs](terra_ecs.png)
 
 ## About this project
 This repository contains Terraform configuration for **ECS EC2/Fargate** (`ECS` directory).
