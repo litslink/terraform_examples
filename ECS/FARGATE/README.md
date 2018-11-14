@@ -1,6 +1,8 @@
 # Terraform ECS with Fargate
 A set of **Terraform** templates used as an example of deployment ***AWS*** infrastructure with ***ECS Fargate***.
 
+![ECS_Fargate](ECS_Fargate.png)
+
 ## About ECS Fargate
 
 Amazon ECS features AWS Fargate, so you can deploy and manage containers without having to provision or manage servers.
