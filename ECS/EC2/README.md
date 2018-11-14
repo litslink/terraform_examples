@@ -1,6 +1,8 @@
 # Terraform ECS with EC2
 A set of **Terraform** templates used as an example of deployment ***AWS*** infrastructure with ***ECS EC2***.
 
+![ECS_EC2](ECS_EC2.png)
+
 ## About this project
 This repository contains Terraform configuration for **ECS** with **EC2** (`EC2` directory).
 
