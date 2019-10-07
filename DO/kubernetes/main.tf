@@ -1,9 +1,13 @@
 # Set the variable value in *.tfvars file
 # or using -var="do_token=..." CLI option
 variable "do_token" {}
+variable "do_kubernetes_slug" {}
+variable "do_node_pool_staging_droplet_slug" {}
+variable "do_node_pool_production_droplet_slug" {}
 variable "gitlab_runner_token" {}
 variable "grafana_admin_pass" {}
 variable "slack_api_url" {}
+variable "slack_channel_name" {}
 
 # Configure the DigitalOcean Provider
 provider "digitalocean" {
@@ -30,12 +34,11 @@ provider "digitalocean" {
 resource "digitalocean_kubernetes_cluster" "cluster0" {
   name    = "do-fra1-0"
   region  = "fra1"
-  // Get actual version: https://slugs.do-api.dev/
-  version = "1.15.3-do.2"
+  version = "${var.do_kubernetes_slug}"
   tags    = ["terraform-managed"]
   node_pool {
     name       = "staging"
-    size       = "s-1vcpu-2gb"
+    size       = "${var.do_node_pool_staging_droplet_slug}"
     node_count = 1
     tags    = ["terraform-managed"]
   }
@@ -43,10 +46,7 @@ resource "digitalocean_kubernetes_cluster" "cluster0" {
 resource "digitalocean_kubernetes_node_pool" "production" {
   cluster_id = "${digitalocean_kubernetes_cluster.cluster0.id}"
   name       = "production"
-  // Uncomment for demo/test:
-  size       = "s-1vcpu-2gb"
-  // Uncomment for production CPU Optimized: 4GB/2vCPU/40$
-  // size       = "c-2" 
+  size       = "${var.do_node_pool_production_droplet_slug}"
   node_count = 1
   tags    = ["terraform-managed"]
 }
@@ -210,7 +210,7 @@ controller:
           topologyKey: kubernetes.io/hostname
   resources:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 64Mi
 defaultBackend:
   affinity: {}
@@ -262,7 +262,7 @@ controller:
           topologyKey: kubernetes.io/hostname
   resources:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 64Mi
 defaultBackend:
   affinity: {}
@@ -354,7 +354,7 @@ resource "helm_release" "cert_manager" {
   name = "cert-manager"
   chart = "jetstack/cert-manager"
   namespace = "cert-manager"
-  version    = "v0.10.0"
+  version    = "v0.10.1"
   depends_on = [
     "helm_release.ingress_production",
     "local_file.kubernetes_config"
@@ -368,70 +368,12 @@ resource "helm_release" "cert_manager" {
     command = "kubectl --kubeconfig=.kubeconfig.yaml create -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.10/deploy/manifests/00-crds.yaml || true"
   }
   provisioner "local-exec" {
-    command = <<EOT
-cat <<EOF | kubectl --kubeconfig=.kubeconfig.yaml apply -f -
-apiVersion: certmanager.k8s.io/v1alpha1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-staging-http
-spec:
-  acme:
-    # The ACME server URL
-    server: https://acme-staging.api.letsencrypt.org/directory
-    # Email address used for ACME registration
-    email: admin@example.com
-    # Name of a secret used to store the ACME account private key
-    privateKeySecretRef:
-      name: le-staging-http-secret
-    # Enable the HTTP-01 challenge provider
-    http01: {}
-    # http01:
-    #   ingressClass: nginx
----
-apiVersion: certmanager.k8s.io/v1alpha1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-prod-http
-spec:
-  acme:
-    # The ACME server URL
-    server: https://acme-v02.api.letsencrypt.org/directory
-    # Email address used for ACME registration
-    email: admin@example.com
-    # Name of a secret used to store the ACME account private key
-    privateKeySecretRef:
-      name: le-prod-http-secret
-    # Enable the HTTP-01 challenge provider
-    http01: {}
-    # http01:
-    #   ingressClass: nginx
-EOF
-EOT
+    // This step has issues, so you may need to apply ClusterIssuers manually :-\
+    command = "kubectl --kubeconfig=.kubeconfig.yaml create -f ./kube/kube-clusterIssuers.yaml || true"
   }
 }
 
-// resource "helm_release" "prometheus_operator" {
-//   depends_on = [
-//     "kubernetes_service_account.helm",
-//     "kubernetes_cluster_role_binding.helm"
-//   ]
-//   name      = "prometheus-operator"
-//   namespace = "monitoring"
-//   chart     = "stable/prometheus-operator"
-//   timeout   = "300"
-//   values = [
-//     "${file("./helm-values/helm-prometheus-operator-values.yaml")}"
-//   ]
-//   set {
-//     name  = "grafana.adminPassword"
-//     value = "${var.grafana_admin_pass}"
-//   }
-//   set {
-//     name  = "alertmanager.config.global.slack_api_url"
-//     value = "${var.slack_api_url}"
-//   }
-// }
-
+// HELM | kube-state-metrics (DO monitoring)
 resource "helm_release" "kube_state_metrics" {
   depends_on = [
     "kubernetes_service_account.helm",
@@ -442,7 +384,83 @@ resource "helm_release" "kube_state_metrics" {
   chart     = "stable/kube-state-metrics"
   timeout   = "300"
   // values = [
-  //   "${file("./helm-values/helm-kube-state-metrics-values.yaml")}"
+  //   "${file("./helm/helm-kube-state-metrics-values.yaml")}"
   // ]
 }
 
+// HELM | metrics-server (kubectl top, etc..)
+resource "helm_release" "metrics_server" {
+  depends_on = [
+    "kubernetes_service_account.helm",
+    "kubernetes_cluster_role_binding.helm"
+  ]
+  name      = "metrics-server"
+  namespace = "kube-system"
+  chart     = "stable/metrics-server"
+  timeout   = "300"
+  values    = [
+    <<-EOF
+args:
+  - --kubelet-preferred-address-types=InternalIP
+  EOF
+  ]
+}
+
+// HELM | prometheus-operator
+resource "helm_release" "prometheus_operator" {
+  depends_on = [
+    "kubernetes_service_account.helm",
+    "kubernetes_cluster_role_binding.helm"
+  ]
+  name      = "prometheus-operator"
+  namespace = "monitoring"
+  chart     = "stable/prometheus-operator"
+  timeout   = "300"
+  recreate_pods = "true"
+  values = [
+    "${file("./helm/helm-prometheus-operator-values.yaml")}"
+  ]
+  set {
+    name  = "grafana.adminPassword"
+    value = "${var.grafana_admin_pass}"
+  }
+  set {
+    name  = "alertmanager.config.global.slack_api_url"
+    value = "${var.slack_api_url}"
+  }
+  set {
+    name  = "alertmanager.config.receivers[0].slack_configs[0].channel"
+    value = "${var.slack_channel_name}"
+  }
+}
+
+// HELM | loki-stack
+data "helm_repository" "loki" {
+    name = "loki"
+    url  = "https://grafana.github.io/loki/charts"
+}
+resource "helm_release" "loki_stack" {
+  depends_on = [
+    "kubernetes_service_account.helm",
+    "kubernetes_cluster_role_binding.helm"
+  ]
+  name      = "loki-stack"
+  namespace = "monitoring"
+  chart     = "loki/loki-stack"
+  timeout   = "300"
+  // values = [
+  //   "${file("./helm/helm-loki-stack-values.yaml")}"
+  // ]
+  values    = [
+    <<-EOF
+loki:
+  persistence:
+    enabled: true
+    accessModes:
+    - ReadWriteOnce
+    size: 10Gi
+    annotations: {}
+    storageClassName: do-block-storage
+  EOF
+  ]
+}
