@@ -56,17 +56,27 @@ provider "kubernetes" {
   client_certificate     = "${base64decode(digitalocean_kubernetes_cluster.cluster0.kube_config.0.client_certificate)}"
   client_key             = "${base64decode(digitalocean_kubernetes_cluster.cluster0.kube_config.0.client_key)}"
   cluster_ca_certificate = "${base64decode(digitalocean_kubernetes_cluster.cluster0.kube_config.0.cluster_ca_certificate)}"
+  # Need to try this:
+  # client_certificate     = "${file("~/.kube/client-cert.pem")}"
+  # client_key             = "${file("~/.kube/client-key.pem")}"
+  # cluster_ca_certificate = "${file("~/.kube/cluster-ca-cert.pem")}"
+  # Or this:
+  # host  = digitalocean_kubernetes_cluster.cluster0.endpoint
+  # token = digitalocean_kubernetes_cluster.cluster0.kube_config[0].token
+  # cluster_ca_certificate = base64decode(
+  #   digitalocean_kubernetes_cluster.cluster0.kube_config[0].cluster_ca_certificate
+  # )
 }
 
 # Add namespaces
-resource "kubernetes_namespace" "ingress_production" {
+resource "kubernetes_namespace" "ingress_nginx_production" {
   metadata {
-    name = "ingress-production"
+    name = "nginx-production"
   }
 }
-resource "kubernetes_namespace" "ingress_staging" {
+resource "kubernetes_namespace" "ingress_nginx_staging" {
   metadata {
-    name = "ingress-staging"
+    name = "nginx-staging"
   }
 }
 resource "kubernetes_namespace" "monitoring" {
@@ -177,13 +187,13 @@ resource "kubernetes_cluster_role_binding" "helm" {
 
 ## Helm releses: ##
 // HELM | Ingress for production:
-resource "helm_release" "ingress_production" {
+resource "helm_release" "ingress_nginx_production" {
   depends_on = [
     "kubernetes_service_account.helm",
     "kubernetes_cluster_role_binding.helm"
   ]
-  name      = "ingress-production"
-  namespace = "ingress-production"
+  name      = "nginx-production"
+  namespace = "nginx-production"
   chart     = "stable/nginx-ingress"
   version   = "1.11.5"
   timeout   = "600"
@@ -224,18 +234,18 @@ defaultBackend:
     ]
   set {
     name  = "controller.ingressClass"
-    value = "ingress-production"
+    value = "nginx-production"
   }
 }
 
 // HELM | Ingress for staging:
-resource "helm_release" "ingress_staging" {
+resource "helm_release" "ingress_nginx_staging" {
   depends_on = [
     "kubernetes_service_account.helm",
     "kubernetes_cluster_role_binding.helm"
   ]
-  name      = "ingress-staging"
-  namespace = "ingress-staging"
+  name      = "nginx-staging"
+  namespace = "nginx-staging"
   chart     = "stable/nginx-ingress"
   version   = "1.11.5"
   timeout   = "600"
@@ -276,7 +286,7 @@ defaultBackend:
     ]
   set {
     name  = "controller.ingressClass"
-    value = "ingress-staging"
+    value = "nginx-staging"
   }
 }
 
@@ -354,9 +364,9 @@ resource "helm_release" "cert_manager" {
   name = "cert-manager"
   chart = "jetstack/cert-manager"
   namespace = "cert-manager"
-  version    = "v0.10.1"
+  version    = "v0.11.0"
   depends_on = [
-    "helm_release.ingress_production",
+    "helm_release.ingress_nginx_production",
     "local_file.kubernetes_config"
   ]
   set {
@@ -365,11 +375,11 @@ resource "helm_release" "cert_manager" {
     value = "true" 
   }
   provisioner "local-exec" {
-    command = "kubectl --kubeconfig=.kubeconfig.yaml create -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.10/deploy/manifests/00-crds.yaml || true"
+    command = "kubectl --kubeconfig=.kubeconfig.yaml apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml || true"
   }
   provisioner "local-exec" {
     // This step has issues, so you may need to apply ClusterIssuers manually :-\
-    command = "kubectl --kubeconfig=.kubeconfig.yaml create -f ./kube/kube-clusterIssuers.yaml || true"
+    command = "kubectl --kubeconfig=.kubeconfig.yaml apply -f ./kube/kube-clusterIssuers.yaml || true"
   }
 }
 

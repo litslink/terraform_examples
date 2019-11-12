@@ -1,0 +1,13 @@
+.DS_Store
+# Terraform modules
+.terraform
+
+# Terraform variables
+terraform.tfvars
+
+
+# Terraform state (for example repository)
+*.tfstate*
+
+# Kubernetes config as output
+.kubeconfig.yaml

@@ -1,0 +1,23 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus-operator-grafana
+  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: nginx-staging
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - grafana.${BASE_DOMAIN}
+    secretName: grafana.${BASE_DOMAIN}-tls
+  rules:
+  - host: grafana.${BASE_DOMAIN}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: prometheus-operator-grafana
+          servicePort: 80
